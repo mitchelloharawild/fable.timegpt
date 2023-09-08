@@ -40,24 +40,24 @@ library(fable.timegpt)
 uad <- as_tsibble(USAccDeaths)
 fc <- uad |> 
   model(TimeGPT(value)) |> 
-  forecast(h = 10, level = c(80, 95))
+  forecast(h = 10, level = c(50, 80, 95))
 fc
 #> # A fable: 10 x 4 [1M]
 #> # Key:     .model [1]
-#>    .model            index         value .mean
-#>    <chr>             <mth>        <dist> <dbl>
-#>  1 TimeGPT(value) 1979 Jan percentile[5]    NA
-#>  2 TimeGPT(value) 1979 Feb percentile[5]    NA
-#>  3 TimeGPT(value) 1979 Mar percentile[5]    NA
-#>  4 TimeGPT(value) 1979 Apr percentile[5]    NA
-#>  5 TimeGPT(value) 1979 May percentile[5]    NA
-#>  6 TimeGPT(value) 1979 Jun percentile[5]    NA
-#>  7 TimeGPT(value) 1979 Jul percentile[5]    NA
-#>  8 TimeGPT(value) 1979 Aug percentile[5]    NA
-#>  9 TimeGPT(value) 1979 Sep percentile[5]    NA
-#> 10 TimeGPT(value) 1979 Oct percentile[5]    NA
+#>    .model            index         value  .mean
+#>    <chr>             <mth>        <dist>  <dbl>
+#>  1 TimeGPT(value) 1979 Jan percentile[7]  8193.
+#>  2 TimeGPT(value) 1979 Feb percentile[7]  7143.
+#>  3 TimeGPT(value) 1979 Mar percentile[7]  8025.
+#>  4 TimeGPT(value) 1979 Apr percentile[7]  8513.
+#>  5 TimeGPT(value) 1979 May percentile[7]  9338.
+#>  6 TimeGPT(value) 1979 Jun percentile[7]  9810.
+#>  7 TimeGPT(value) 1979 Jul percentile[7] 10841.
+#>  8 TimeGPT(value) 1979 Aug percentile[7]  9946.
+#>  9 TimeGPT(value) 1979 Sep percentile[7]  9116.
+#> 10 TimeGPT(value) 1979 Oct percentile[7]  9126.
 fc |> 
-  autoplot(uad, point_forecast = list(median = median))
+  autoplot(uad, level = c(50, 80, 95))
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />

@@ -40,9 +40,9 @@ library(fable.timegpt)
 uad <- as_tsibble(USAccDeaths)
 fc <- uad |> 
   model(TimeGPT(value)) |> 
-  forecast(h = 10, level = c(80, 95))
+  forecast(h = 10, level = c(50, 80, 95))
 fc
 fc |> 
-  autoplot(uad, point_forecast = list(median = median))
+  autoplot(uad, level = c(50, 80, 95))
 ```
 

@@ -70,7 +70,7 @@ specials_timegpt <- new_specials(
 #' @export
 TimeGPT <- function(formula, ...){
   timegpt <- new_model_class("timegpt", train_timegpt, specials_timegpt)
-  new_model_definition(timegpt, !!enquo(formula), ...)
+  new_model_definition(timegpt, !!rlang::enquo(formula), ...)
 }
 
 #' Produce forecasts from the TimeGPT API
@@ -89,8 +89,8 @@ forecast.fbl_timegpt <- function(object, new_data, specials = NULL, times = 1000
   tsbl <- object$.data
 
   # Call the API
-  y <- tsbl[[measured_vars(tsbl)]]
-  names(y) <- as.Date(tsbl[[index_var(tsbl)]])
+  y <- tsbl[[tsibble::measured_vars(tsbl)]]
+  names(y) <- as.Date(tsbl[[tsibble::index_var(tsbl)]])
   # y <- jsonlite::toJSON(as.list(y), auto_unbox = TRUE)
 
   valid_intvls <- list(
@@ -138,13 +138,22 @@ forecast.fbl_timegpt <- function(object, new_data, specials = NULL, times = 1000
 
     conf <- as.numeric(sub("^(lo|hi)-(.*)", "\\2", names(fc$data)[is_int]))
 
-    distributional::dist_percentile(
+    dist_symmetric_percentile(
       x = unname(split(unname(unlist(fc$data[is_val|is_int])), rep(seq_len(nrow(new_data)), 1 + length(level) * 2))),
       percentile = rep(list(c(0.5, 0.5 * (1 + (1 - is_lo[is_int]*2)*conf/100))), nrow(new_data))
     )
   } else {
     distributional::dist_degenerate(unlist(fc$data$value))
   }
+}
+
+dist_symmetric_percentile <- function(x, percentile) {
+  distributional::new_dist(x = x, percentile = percentile, class = c("dist_symmetric_percentile", "dist_percentile"))
+}
+
+#' @export
+mean.dist_symmetric_percentile <- function(x, ...){
+  median(x, ...)
 }
 
 #' @export

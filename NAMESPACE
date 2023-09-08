@@ -2,6 +2,7 @@
 
 S3method(forecast,fbl_timegpt)
 S3method(format,fbl_timegpt)
+S3method(mean,dist_symmetric_percentile)
 S3method(model_sum,fbl_timegpt)
 export(TimeGPT)
 importFrom(stats,predict)
