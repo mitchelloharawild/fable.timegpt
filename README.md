@@ -38,8 +38,23 @@ the token directly in the `forecast()` function.
 library(fable.timegpt)
 #> Loading required package: fabletools
 uad <- as_tsibble(USAccDeaths)
-fc <- uad |> 
-  model(TimeGPT(value)) |> 
+fit <- uad |> 
+  model(TimeGPT(value))
+fit
+#> # A mable: 1 x 1
+#>   `TimeGPT(value)`
+#>            <model>
+#> 1        <timegpt>
+uad |> 
+  autoplot(value) + 
+  autolayer(fitted(fit), .fitted, colour = "steelblue", linetype = "dashed")
+#> Warning: Removed 24 rows containing missing values (`geom_line()`).
+```
+
+<img src="man/figures/README-example-1.png" width="100%" />
+
+``` r
+fc <- fit |> 
   forecast(h = 10, level = c(50, 80, 95))
 fc
 #> # A fable: 10 x 4 [1M]
@@ -60,4 +75,4 @@ fc |>
   autoplot(uad, level = c(50, 80, 95))
 ```
 
-<img src="man/figures/README-example-1.png" width="100%" />
+<img src="man/figures/README-example-2.png" width="100%" />

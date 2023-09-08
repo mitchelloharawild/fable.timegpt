@@ -84,8 +84,6 @@ TimeGPT <- function(formula, ...){
 #'
 #' @export
 forecast.fbl_timegpt <- function(object, new_data, specials = NULL, times = 1000, level = NULL, token = Sys.getenv("TIMEGPT_TOKEN"), ...){
-  mdl <- object$model
-
   tsbl <- object$.data
 
   # Call the API
@@ -145,6 +143,60 @@ forecast.fbl_timegpt <- function(object, new_data, specials = NULL, times = 1000
   } else {
     distributional::dist_degenerate(unlist(fc$data$value))
   }
+}
+
+#' Obtain historical 1-step forecasts from TimeGPT Historic
+#'
+#' Based on the provided data, this endpoint predicts time series data for the
+#' in-sample period (historical period). It takes a JSON as an input, including
+#' information like the series’ frequency and the historical data.
+#'
+#' @inheritParams fable::fitted.ARIMA
+#' @inheritParams forecast.fbl_timegpt
+#'
+#' @return A vector of fitted values.
+#'
+#' @export
+fitted.fbl_timegpt <- function(object, token = Sys.getenv("TIMEGPT_TOKEN"), ...){
+  tsbl <- object$.data
+
+  # Call the API
+  y <- tsbl[[tsibble::measured_vars(tsbl)]]
+  names(y) <- as.Date(tsbl[[tsibble::index_var(tsbl)]])
+  # y <- jsonlite::toJSON(as.list(y), auto_unbox = TRUE)
+
+  valid_intvls <- list(
+    "H" = tsibble::new_interval(hour = 1),
+    "D" = tsibble::new_interval(day = 1),
+    "W" = tsibble::new_interval(week = 1),
+    "M" = tsibble::new_interval(month = 1)
+  )
+  data_intvl <- vapply(valid_intvls, identical, logical(1L), tsibble::interval(tsbl))
+  if(!any(data_intvl)) {
+    stop("The data must be of a hourly, daily, weekly, or monthly interval.")
+  }
+
+  resp <- httr2::request("https://dashboard.nixtla.io/api/timegpt_historic") |>
+    httr2::req_headers(
+      "accept" = "application/json",
+      "content-type" = "application/json",
+      "authorization" = paste("Bearer", token)
+    ) |>
+    httr2::req_body_json(
+      c(
+        list(
+          y = as.list(y),
+          freq = names(which(data_intvl))#,
+          # level = level
+        ),
+        list(...)
+      )
+    ) |>
+    httr2::req_perform()
+
+  content <- httr2::resp_body_json(resp)
+  fit <- unlist(content$data$value)
+  c(rep(NA_real_, nrow(tsbl) - length(fit)), fit)
 }
 
 dist_symmetric_percentile <- function(x, percentile) {

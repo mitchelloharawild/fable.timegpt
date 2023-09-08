@@ -38,8 +38,13 @@ Using the TimeGPT API requires a token, you can request one at <https://dashboar
 ```{r example}
 library(fable.timegpt)
 uad <- as_tsibble(USAccDeaths)
-fc <- uad |> 
-  model(TimeGPT(value)) |> 
+fit <- uad |> 
+  model(TimeGPT(value))
+fit
+uad |> 
+  autoplot(value) + 
+  autolayer(fitted(fit), .fitted, colour = "steelblue", linetype = "dashed")
+fc <- fit |> 
   forecast(h = 10, level = c(50, 80, 95))
 fc
 fc |> 
