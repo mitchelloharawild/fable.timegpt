@@ -1,0 +1,26 @@
+Package: fable.timegpt
+Title: TimeGPT Modelling Interface for 'fable'
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Mitchell",
+             family = "O'Hara-Wild",
+             role = c("aut", "cre"),
+             email = "mail@mitchelloharawild.com",
+             comment = c(ORCID = "0000-0001-6729-7695")))
+Description: Allows TimeGPT forecasts from the Nixtla API to be used in a
+  tidy workflow with the modelling interface of 'fabletools'. This extends 
+  TimeGPT to provide enhanced model specification and management, performance
+  evaluation methods, and model combination tools.
+License: MIT + file LICENSE
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    distributional,
+    httr2,
+    tsibble
+Depends: 
+    fabletools
